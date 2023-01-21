@@ -5,7 +5,7 @@ import pandas as pd
 
 
 class DadosAE(Dataset):
-    def _init_(self,
+    def __init__(self,
                target_sample_rate):
         self.annotations = pd.read_csv(r"F:\Projetos\Autoencoder\metadata\treino.csv")
         self.annotations_ruido = pd.read_csv(r"F:\Projetos\Autoencoder\metadata\treinoruidoso.csv")
@@ -14,10 +14,10 @@ class DadosAE(Dataset):
         self.num_samples = 4 * 16000
         self.cache = dict()
 
-    def _len_(self):
+    def __len__(self):
         return len(self.annotations)
 
-    def _getitem_(self, index):
+    def __getitem__(self, index):
         if index in self.cache:
             return self.cache[index]
         path_ruido, path_limpo = self._get_audio_sample_path(index)
