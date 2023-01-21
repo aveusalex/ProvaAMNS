@@ -7,12 +7,13 @@ import pandas as pd
 class DadosAE(Dataset):
     def __init__(self,
                target_sample_rate):
+        self.raiz = r"F:\Projetos\Autoencoder"
         self.annotations = pd.read_csv(r"F:\Projetos\Autoencoder\metadata\treino.csv")
         self.annotations_ruido = pd.read_csv(r"F:\Projetos\Autoencoder\metadata\treinoruidoso.csv")
         self.device = "cuda"
         self.target_sample_rate = target_sample_rate
         self.num_samples = 4 * 16000
-        self.cache = dict()
+        self.cache = dict()  # controlamos para ter no máximo 100 amostras no cache
 
     def __len__(self):
         return len(self.annotations)
@@ -23,7 +24,7 @@ class DadosAE(Dataset):
         path_ruido, path_limpo = self._get_audio_sample_path(index)
 
         # audio com ruido (X)
-        signal, sr = torchaudio.load(path_ruido)
+        signal, sr = torchaudio.load(self.raiz + "/" + path_ruido)
         signal = signal.to(self.device)
         signal = self._resample_if_necessary(signal, sr)
         signal = self._mix_down_if_necessary(signal)
@@ -31,14 +32,19 @@ class DadosAE(Dataset):
         signal = self._right_pad_if_necessary(signal)
 
         # audio limpo (y)
-        signal_limpo, sr_limpo = torchaudio.load(path_limpo)
+        signal_limpo, sr_limpo = torchaudio.load(self.raiz + "/" + path_limpo)
         signal_limpo = signal_limpo.to(self.device)
         signal_limpo = self._resample_if_necessary(signal_limpo, sr_limpo)
         signal_limpo = self._mix_down_if_necessary(signal_limpo)
         signal_limpo = self._cut_if_necessary(signal_limpo)
         signal_limpo = self._right_pad_if_necessary(signal_limpo)
 
-        self.cache[index] = signal, signal_limpo
+        if len(self.cache) < 128:
+            self.cache[index] = (signal, signal_limpo)
+        else:
+            self.cache = dict()
+            self.cache[index] = (signal, signal_limpo)
+
         return signal, signal_limpo
 
     def _cut_if_necessary(self, signal):

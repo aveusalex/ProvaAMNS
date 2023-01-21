@@ -4,11 +4,12 @@ from torch.utils.data import DataLoader, random_split
 from LoaderDados import DadosAE
 from Rede import Encoder, Decoder
 import matplotlib.pyplot as plt
+from math import floor
 
 
 # hiperparametros
-batch_size = 32
-num_epochs = 100
+batch_size = 128
+num_epochs = 10
 learning_rate = 1e-3
 encoded_space_dim = 100
 kfold = 5
@@ -49,11 +50,13 @@ val_losses = []
 # Loop de treinamento
 # Loop de épocas
 for epoch in range(num_epochs):
+    print("Epoch {}/{}".format(epoch, num_epochs - 1))
     # Treine o modelo com o subset de treinamento
     encoder.train()
     decoder.train()
 
     train_loss = 0
+    step = 0
     for input, target in train_loader:
         optimizer.zero_grad()
         encoded_Data = encoder(input)
@@ -62,7 +65,14 @@ for epoch in range(num_epochs):
         loss.backward()
         optimizer.step()
         train_loss += loss.item()
-    train_loss /= len(train_loader)
+        if step % 10 == 0:
+            progress = step / len(train_loader)
+            # Calculate the number of hashes to represent the progress
+            hashes = '#' * int(floor(progress * 50))
+            spaces = ' ' * (50 - len(hashes))
+            print(f'\rStep {step} [{hashes}{spaces}] {progress:.2%} /{len(train_loader)} - Loss: {loss.item()}', end='')
+        step += 1
+    train_loss /= len(train_loader)  # calculando a loss media dos steps / batches
     train_losses.append(train_loss)
 
     # Avalie o modelo com o subset de validação
@@ -76,7 +86,7 @@ for epoch in range(num_epochs):
             val_loss += loss_fn(decoded_Data, target).item()
         val_loss /= len(val_loader)
         val_losses.append(val_loss)
-        print(f'Epoch {epoch}, Validation Loss: {val_loss}')
+        print(f'Validation Loss: {val_loss}\n')
 
 # Salve o modelo
 torch.save(encoder.state_dict(), 'encoder.pth')
