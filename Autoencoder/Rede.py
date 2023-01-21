@@ -24,9 +24,9 @@ class Encoder(nn.Module):
 
         # Linear section
         self.encoder_lin = nn.Sequential(
-            nn.Linear(7424, 128),
+            nn.Linear(7424, 2046),
             nn.ReLU(True),
-            nn.Linear(128, encoded_space_dim)
+            nn.Linear(2046, encoded_space_dim)
         )
 
     def forward(self, x):
@@ -43,9 +43,9 @@ class Decoder(nn.Module):
     def __init__(self, encoded_space_dim):
         super().__init__()
         self.decoder_lin = nn.Sequential(
-            nn.Linear(encoded_space_dim, 128),
+            nn.Linear(encoded_space_dim, 2046),
             nn.ReLU(True),
-            nn.Linear(128, 7424),
+            nn.Linear(2046, 7424),
             nn.ReLU(True)
         )
 
