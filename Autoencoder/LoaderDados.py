@@ -77,3 +77,35 @@ class DadosAE(Dataset):
 
     def _get_audio_sample_label(self, index):
         return self.annotations.iloc[index, 1]
+
+
+class Funcoes:
+    def __init__(self, target_sample_rate=16000, device="cpu"):
+        self.device = device
+        self.target_sample_rate = target_sample_rate
+        self.num_samples = 4 * 16000
+
+    def cut_if_necessary(self, signal):
+        if signal.shape[1] > self.num_samples:
+            signal = signal[:, :self.num_samples]
+        return signal
+
+    def right_pad_if_necessary(self, signal):
+        length_signal = signal.shape[1]
+        if length_signal < self.num_samples:
+            num_missing_samples = self.num_samples - length_signal
+            last_dim_padding = (0, num_missing_samples)
+            signal = torch.nn.functional.pad(signal, last_dim_padding)
+        return signal
+
+    def resample_if_necessary(self, signal, sr):
+        if sr != self.target_sample_rate:
+            resampler = torchaudio.transforms.Resample(sr, self.target_sample_rate)
+            resampler.to(self.device)
+            signal = resampler(signal)
+        return signal
+
+    def mix_down_if_necessary(self, signal):
+        if signal.shape[0] > 1:
+            signal = torch.mean(signal, dim=0, keepdim=True)
+        return signal

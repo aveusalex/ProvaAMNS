@@ -8,10 +8,11 @@ from math import floor
 
 
 # hiperparametros
-batch_size = 256
-num_epochs = 10
-learning_rate = 1e-5
+batch_size = 512
+num_epochs = 20
+learning_rate = 1e-2
 encoded_space_dim = 100
+name = 'Rede_basicona_tanh'
 
 
 # Define o modelo, otimizador e perda
@@ -90,8 +91,8 @@ for epoch in range(num_epochs):
         print(f'Validation Loss: {val_loss}\n')
 
 # Salve o modelo
-torch.save(encoder.state_dict(), 'encoder.pth')
-torch.save(decoder.state_dict(), 'decoder.pth')
+torch.save(encoder.state_dict(), f'encoder{name}.pth')
+torch.save(decoder.state_dict(), f'decoder{name}.pth')
 
 # Plotar as losses
 plt.figure(figsize=(16,9))
