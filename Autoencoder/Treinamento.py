@@ -8,11 +8,10 @@ from math import floor
 
 
 # hiperparametros
-batch_size = 128
+batch_size = 256
 num_epochs = 10
-learning_rate = 1e-3
+learning_rate = 1e-5
 encoded_space_dim = 100
-kfold = 5
 
 
 # Define o modelo, otimizador e perda
@@ -70,10 +69,12 @@ for epoch in range(num_epochs):
             # Calculate the number of hashes to represent the progress
             hashes = '#' * int(floor(progress * 50))
             spaces = ' ' * (50 - len(hashes))
-            print(f'\rStep {step} [{hashes}{spaces}] {progress:.2%} /{len(train_loader)} - Loss: {loss.item()}', end='')
+            print(f'\rStep {step} [{hashes}{spaces}] {progress:.2%} /{len(train_loader)} - Loss: {loss.item():.5f}', end='')
         step += 1
     train_loss /= len(train_loader)  # calculando a loss media dos steps / batches
     train_losses.append(train_loss)
+
+    print("\n")
 
     # Avalie o modelo com o subset de validação
     encoder.eval()

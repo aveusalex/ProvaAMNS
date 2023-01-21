@@ -39,7 +39,7 @@ class DadosAE(Dataset):
         signal_limpo = self._cut_if_necessary(signal_limpo)
         signal_limpo = self._right_pad_if_necessary(signal_limpo)
 
-        if len(self.cache) < 128:
+        if len(self.cache) < 256:
             self.cache[index] = (signal, signal_limpo)
         else:
             self.cache = dict()
