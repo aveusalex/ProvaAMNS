@@ -8,8 +8,9 @@ from os import getcwd
 
 # carregando dados para teste
 functions = Funcoes()
-path = getcwd()
-sinal_name = "/dis-f1-b1_noise.wav"
+path = "/".join(getcwd().split("\\")[:-1]) + "/Teste/Sinais/"
+sinal_name = "1_noise.wav"
+
 
 signal, sr = torchaudio.load(path + sinal_name)
 print(signal.max(), signal.min())
