@@ -3,12 +3,14 @@ import torch
 from Autoencoder.LoaderDados import Funcoes
 import torchaudio
 import matplotlib.pyplot as plt
+from os import getcwd
 
 
 # carregando dados para teste
 functions = Funcoes()
-path = r"F:\Projetos\Autoencoder/"
-sinal_name = "dis-f1-b1_noise.wav"
+path = getcwd()
+sinal_name = "/dis-f1-b1_noise.wav"
+
 signal, sr = torchaudio.load(path + sinal_name)
 print(signal.max(), signal.min())
 signal = functions.resample_if_necessary(signal, sr)
@@ -22,8 +24,8 @@ encoder = Encoder(100)
 decoder = Decoder(100)
 
 # carregando o modelo salvo
-encoder.load_state_dict(torch.load('../modelos/Segundo_tanh/encoderRede_basicona_tanh.pth'))
-decoder.load_state_dict(torch.load('../modelos/Segundo_tanh/decoderRede_basicona_tanh.pth'))
+encoder.load_state_dict(torch.load('../modelos/Terceiro_20epocas/encoderRede_basicona_tanh.pth'))
+decoder.load_state_dict(torch.load('../modelos/Terceiro_20epocas/decoderRede_basicona_tanh.pth'))
 print("Shape:", signal.shape)
 saida = encoder(signal.reshape(1, 1, -1))
 saida = decoder(saida)
@@ -34,4 +36,4 @@ print(saida.max(), saida.min())
 plt.legend()
 plt.show()
 # salvando o arquivo
-torchaudio.save(f'reconstrucao_{sinal_name}.wav', saida.reshape(1, -1).detach(), 16000)
+torchaudio.save(f'reconstrucao_{sinal_name}', saida.reshape(1, -1).detach(), 16000)
